@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import analyzeRouter from './routes/analyze';
 import historyRouter from './routes/history';
@@ -32,9 +35,28 @@ const corsOptions: cors.CorsOptions = {
 };
 
 // ─── Middleware ────────────────────────────────────────────────────────────────
+if (config.security.trustProxy) {
+  app.set('trust proxy', 1);
+}
+
+app.disable('x-powered-by');
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
+app.use(compression());
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
+app.use(
+  rateLimit({
+    windowMs: config.security.rateLimitWindowMs,
+    limit: config.security.rateLimitMax,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+  }),
+);
+app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
@@ -42,6 +64,7 @@ app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     service: 'LexGuard Backend',
+    googleServicesReady: config.googleServicesReady,
   });
 });
 

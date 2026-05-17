@@ -33,6 +33,14 @@ export const config = {
     collection: process.env.FIRESTORE_COLLECTION || 'analyses',
     reportsCollection: process.env.FIRESTORE_REPORTS_COLLECTION || 'reports',
   },
+  security: {
+    trustProxy: process.env.TRUST_PROXY === 'true' || process.env.K_SERVICE !== undefined,
+    rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10),
+    rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '120', 10),
+  },
+  googleServicesReady:
+    process.env.MOCK_MODE === 'true' ||
+    Boolean(process.env.GOOGLE_CLOUD_PROJECT && process.env.GCS_BUCKET_NAME),
   corsOrigins: Array.from(
     new Set([
       ...DEFAULT_CORS_ORIGINS,
