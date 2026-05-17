@@ -100,7 +100,9 @@ export interface EnhancedClause {
 
 export interface EnhancedReport {
   id: string;
+  userId?: string;
   documentName: string;
+  documentUrl?: string;
   persona: Persona;
   overallRiskScore: number;   // 0–100
   riskLevel: RiskLevel;       // 'safe' | 'negotiate' | 'avoid'
@@ -121,6 +123,7 @@ export interface AnalyzeTextRequest {
   text: string;    // Raw document text
   persona: Persona;
   documentName?: string;
+  userId?: string;
 }
 
 export interface AnalyzeTextResponse {
@@ -135,7 +138,7 @@ export interface UploadDocumentResponse {
 
 export interface ReportsListResponse {
   success: true;
-  reports: Array<Pick<EnhancedReport, 'id' | 'documentName' | 'persona' | 'overallRiskScore' | 'riskLevel' | 'recommendation' | 'createdAt'>>;
+  reports: Array<Pick<EnhancedReport, 'id' | 'userId' | 'documentName' | 'persona' | 'overallRiskScore' | 'riskLevel' | 'recommendation' | 'createdAt'>>;
 }
 
 export interface ReportDetailResponse {

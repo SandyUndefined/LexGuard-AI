@@ -1,4 +1,11 @@
-import { AnalysisResult, HistoryItem } from '../../../shared/src/types';
+import {
+  AnalysisResult,
+  EnhancedReport,
+  HistoryItem,
+  Persona,
+} from '../../../shared/src/types';
+import { ENHANCED_ANALYSIS_AGENT_NAMES } from '../services/aiAnalysis';
+import { scoreClauses } from '../services/riskScoring';
 
 // ─── Realistic mock data for development without GCP credentials ──────────────
 
@@ -168,4 +175,130 @@ export function generateMockAnalysis(
     persona: persona as AnalysisResult['persona'],
     createdAt: new Date().toISOString(),
   };
+}
+
+export const MOCK_ENHANCED_REPORTS: EnhancedReport[] = [
+  {
+    id: 'mock-report-001',
+    userId: 'mock-user',
+    documentName: 'Employment_Contract_TechCorp.pdf',
+    persona: 'employee',
+    overallRiskScore: 83,
+    riskLevel: 'avoid',
+    recommendation:
+      'This contract poses serious risk (score: 83/100) with 1 critical clause(s). Do not sign without major revisions and legal counsel.',
+    summary:
+      'This agreement contains several employer-favorable clauses that could restrict future work and transfer broad rights away from the employee. The IP assignment and non-compete language should be narrowed before signing.',
+    clauses: [
+      {
+        id: 'enhanced-clause-001',
+        title: 'Broad IP Assignment',
+        originalText:
+          'Employee assigns all right, title, and interest in any inventions, works, discoveries, or improvements made during employment, including work done outside normal working hours.',
+        category: 'Intellectual Property',
+        severity: 'critical',
+        riskExplanation:
+          'The company could claim ownership over personal projects created outside work, even if they were not built with company resources.',
+        realWorldImpact:
+          'A weekend app, open-source contribution, or side project could become disputed company property.',
+        saferRewrite:
+          'Employee assigns only work created within the scope of employment using Company resources and directly related to Company products. Independent work created on personal time without Company resources remains Employee property.',
+        agentFlags: {
+          legalRisk: true,
+          financialRisk: true,
+          adversarialTrap: true,
+        },
+      },
+      {
+        id: 'enhanced-clause-002',
+        title: 'Overbroad Non-Compete',
+        originalText:
+          'For 36 months after termination, Employee shall not engage in any business activity that competes with Company in any region where Company conducts or plans to conduct business.',
+        category: 'Non-Compete',
+        severity: 'high',
+        riskExplanation:
+          'The restriction is long, geographically broad, and extends to planned markets that may not be known to the employee.',
+        realWorldImpact:
+          'The employee could be blocked from taking a normal industry job or forced to spend money fighting the restriction.',
+        saferRewrite:
+          'For 6 months after termination, Employee will not solicit Company clients they directly served in the prior 12 months. This does not restrict general employment in the industry.',
+        agentFlags: {
+          legalRisk: true,
+          financialRisk: true,
+          adversarialTrap: true,
+        },
+      },
+    ],
+    agentMetadata: {
+      clausesExtracted: 2,
+      processingTimeMs: 1200,
+      agentsRun: ENHANCED_ANALYSIS_AGENT_NAMES,
+    },
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+export function generateMockEnhancedReport(
+  documentName: string,
+  persona: Persona,
+  documentText: string,
+  userId?: string,
+): EnhancedReport {
+  const template =
+    MOCK_ENHANCED_REPORTS.find((report) => report.id === 'mock-report-001') ??
+    MOCK_ENHANCED_REPORTS[0];
+  const clauses = template.clauses.map((clause) => ({
+    ...clause,
+    id: `${clause.id}-${Date.now()}`,
+  }));
+  const scoring = scoreClauses(clauses);
+
+  return {
+    ...template,
+    id: `mock-report-${Date.now()}`,
+    userId,
+    documentName,
+    persona,
+    ...scoring,
+    summary:
+      documentText.length > 120
+        ? template.summary
+        : 'The provided text is short, so this mock report uses representative contract risks. Disable mock mode to run Vertex AI Gemini on the full text.',
+    clauses,
+    agentMetadata: {
+      ...template.agentMetadata,
+      clausesExtracted: clauses.length,
+      agentsRun: ENHANCED_ANALYSIS_AGENT_NAMES,
+    },
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export function saveMockEnhancedReport(report: EnhancedReport): void {
+  const existingIndex = MOCK_ENHANCED_REPORTS.findIndex((item) => item.id === report.id);
+  if (existingIndex >= 0) {
+    MOCK_ENHANCED_REPORTS[existingIndex] = report;
+    return;
+  }
+
+  MOCK_ENHANCED_REPORTS.unshift(report);
+}
+
+export function getMockEnhancedReport(id: string): EnhancedReport | undefined {
+  return MOCK_ENHANCED_REPORTS.find((report) => report.id === id);
+}
+
+export function listMockEnhancedReports(userId?: string): Array<
+  Pick<EnhancedReport, 'id' | 'userId' | 'documentName' | 'persona' | 'overallRiskScore' | 'riskLevel' | 'recommendation' | 'createdAt'>
+> {
+  return MOCK_ENHANCED_REPORTS.filter((report) => !userId || report.userId === userId).map((report) => ({
+    id: report.id,
+    userId: report.userId,
+    documentName: report.documentName,
+    persona: report.persona,
+    overallRiskScore: report.overallRiskScore,
+    riskLevel: report.riskLevel,
+    recommendation: report.recommendation,
+    createdAt: report.createdAt,
+  }));
 }

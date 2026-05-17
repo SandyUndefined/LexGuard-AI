@@ -9,10 +9,32 @@ export function isValidPersona(value: unknown): value is Persona {
   return typeof value === 'string' && VALID_PERSONAS.includes(value as Persona);
 }
 
+function validateOptionalUserId(userId: unknown, fieldName: string, res: Response): boolean {
+  if (userId === undefined) return true;
+
+  if (typeof userId !== 'string' || userId.trim().length === 0) {
+    res.status(400).json({
+      success: false,
+      error: `Optional field "${fieldName}" must be a non-empty string when provided.`,
+    });
+    return false;
+  }
+
+  if (userId.length > 128) {
+    res.status(400).json({
+      success: false,
+      error: `Optional field "${fieldName}" must be 128 characters or fewer.`,
+    });
+    return false;
+  }
+
+  return true;
+}
+
 // ─── Validate POST /api/analyze-text ─────────────────────────────────────────
 
 export function validateAnalyzeText(req: Request, res: Response, next: NextFunction): void {
-  const { text, persona, documentName } = req.body as Record<string, unknown>;
+  const { text, persona, documentName, userId } = req.body as Record<string, unknown>;
 
   if (typeof text !== 'string' || text.trim().length === 0) {
     res.status(400).json({
@@ -46,6 +68,10 @@ export function validateAnalyzeText(req: Request, res: Response, next: NextFunct
     return;
   }
 
+  if (!validateOptionalUserId(userId, 'userId', res)) {
+    return;
+  }
+
   next();
 }
 
@@ -60,12 +86,16 @@ export function validateUploadDocument(req: Request, res: Response, next: NextFu
     return;
   }
 
-  const { persona } = req.body as Record<string, unknown>;
+  const { persona, userId } = req.body as Record<string, unknown>;
   if (!isValidPersona(persona)) {
     res.status(400).json({
       success: false,
       error: `Form field "persona" must be one of: ${VALID_PERSONAS.join(', ')}.`,
     });
+    return;
+  }
+
+  if (!validateOptionalUserId(userId, 'userId', res)) {
     return;
   }
 

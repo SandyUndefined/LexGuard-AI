@@ -3,6 +3,9 @@ import cors from 'cors';
 import { config } from './config';
 import analyzeRouter from './routes/analyze';
 import historyRouter from './routes/history';
+import enhancedAnalysisRouter from './routes/enhancedAnalysis';
+import reportsRouter from './routes/reports';
+import { handleError } from './errors';
 
 const app = express();
 
@@ -28,6 +31,8 @@ app.get('/health', (_req, res) => {
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/history', historyRouter);
+app.use('/api', enhancedAnalysisRouter);
+app.use('/api/reports', reportsRouter);
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -35,10 +40,7 @@ app.use((_req, res) => {
 });
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Unhandled error:', err);
-  res.status(500).json({ success: false, error: err.message || 'Internal server error' });
-});
+app.use(handleError);
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(config.port, () => {

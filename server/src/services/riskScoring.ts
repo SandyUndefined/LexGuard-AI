@@ -4,7 +4,7 @@ import { SEVERITY_WEIGHTS } from '../../../shared/src/types';
 // ─── Scoring Rules ─────────────────────────────────────────────────────────────
 //
 //   Severity Weights:  Low=10  Medium=35  High=70  Critical=95
-//   Score = 60% weighted average + 40% max clause score
+//   Score = rounded average of clause severity weights
 //   Risk Bands: 0–30 → Safe  |  31–70 → Negotiate  |  71–100 → Avoid
 
 export function calculateRiskScore(clauses: EnhancedClause[]): number {
@@ -12,16 +12,8 @@ export function calculateRiskScore(clauses: EnhancedClause[]): number {
 
   const scores = clauses.map((c) => SEVERITY_WEIGHTS[c.severity]);
   const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
-  const max = Math.max(...scores);
 
-  // Blend: average gives overall document health; max penalises for critical outliers
-  const raw = avg * 0.6 + max * 0.4;
-
-  // Bonus penalty: multiple critical clauses push the score up
-  const criticalCount = clauses.filter((c) => c.severity === 'critical').length;
-  const criticalPenalty = Math.min(criticalCount * 5, 20);
-
-  return Math.min(100, Math.round(raw + criticalPenalty));
+  return Math.min(100, Math.max(0, Math.round(avg)));
 }
 
 export function getRiskLevel(score: number): RiskLevel {

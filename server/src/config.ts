@@ -19,6 +19,7 @@ export const config = {
   },
   firestore: {
     collection: process.env.FIRESTORE_COLLECTION || 'analyses',
+    reportsCollection: process.env.FIRESTORE_REPORTS_COLLECTION || 'reports',
   },
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
 };
