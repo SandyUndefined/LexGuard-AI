@@ -142,10 +142,18 @@ VITE_API_URL=https://YOUR-CLOUD-RUN-URL
 Set this in Vercel:
 
 1. Open your Vercel project.
-2. Go to **Settings → Environment Variables**.
-3. Add `VITE_API_URL`.
-4. Use your Cloud Run service URL as the value.
-5. Redeploy the Vercel frontend.
+2. Go to **Settings → General**.
+3. Set **Framework Preset** to `Vite`. Do not use `Next.js`.
+4. If Vercel root directory is the repo root:
+   - Build Command: `npm run build --workspace=client`
+   - Output Directory: `client/dist`
+5. If Vercel root directory is `client`:
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+6. Go to **Settings → Environment Variables**.
+7. Add `VITE_API_URL`.
+8. Use your Cloud Run service URL as the value.
+9. Redeploy the Vercel frontend.
 
 The frontend has a backend status badge. On app load it calls:
 
