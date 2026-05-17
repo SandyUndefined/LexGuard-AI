@@ -2,6 +2,24 @@ import * as admin from 'firebase-admin';
 import { config } from '../config';
 import { AnalysisResult, EnhancedReport, HistoryItem } from '../../../shared/src/types';
 
+/**
+ * Recursively removes all undefined values from an object or array.
+ */
+function sanitize<T>(obj: T): T {
+  if (Array.isArray(obj)) {
+    return obj.map(sanitize).filter((v) => v !== undefined) as unknown as T;
+  } else if (obj && typeof obj === 'object') {
+    return Object.entries(obj)
+      .reduce((acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key] = sanitize(value);
+        }
+        return acc;
+      }, {} as any);
+  }
+  return obj;
+}
+
 let db: admin.firestore.Firestore | null = null;
 
 function getDb(): admin.firestore.Firestore {
@@ -19,10 +37,20 @@ function getDb(): admin.firestore.Firestore {
 
 export async function saveAnalysis(result: AnalysisResult): Promise<void> {
   const firestore = getDb();
+  // Only add userId fallback if userId exists on result
+  let safeResult: AnalysisResult | (AnalysisResult & { userId: string });
+  if ('userId' in result) {
+    safeResult = {
+      ...result,
+      userId: (result as any).userId || "anonymous",
+    };
+  } else {
+    safeResult = result;
+  }
   await firestore
     .collection(config.firestore.collection)
-    .doc(result.id)
-    .set(result);
+    .doc(safeResult.id)
+    .set(sanitize(safeResult));
 }
 
 export async function getAnalysis(id: string): Promise<AnalysisResult | null> {
@@ -63,10 +91,15 @@ export async function deleteAnalysis(id: string): Promise<void> {
 
 export async function saveReport(report: EnhancedReport): Promise<void> {
   const firestore = getDb();
+  // Ensure userId fallback and sanitize before writing
+  const safeReport = {
+    ...report,
+    userId: report.userId || "anonymous",
+  };
   await firestore
     .collection(config.firestore.reportsCollection)
-    .doc(report.id)
-    .set(report);
+    .doc(safeReport.id)
+    .set(sanitize(safeReport));
 }
 
 export async function getReport(id: string): Promise<EnhancedReport | null> {
