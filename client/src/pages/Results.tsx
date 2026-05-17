@@ -73,7 +73,7 @@ export default function Results() {
               New Analysis
             </button>
             <button onClick={() => navigate('/history')} className="btn-secondary justify-center">
-              View Samples
+              View Reports
             </button>
           </div>
         </div>

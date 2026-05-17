@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Analyze from './pages/Analyze';
 import Results from './pages/Results';
 import History from './pages/History';
+import BackendStatus from './components/BackendStatus';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         </div>
 
         <Navbar />
+        <BackendStatus />
 
         <main className="relative z-10">
           <Routes>

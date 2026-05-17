@@ -12,8 +12,10 @@ const app = express();
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(
   cors({
-    origin: [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000'],
+    origin: config.corsOrigins,
     credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }),
 );
 app.use(express.json({ limit: '10mb' }));
@@ -23,8 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
-    mockMode: config.mockMode,
-    timestamp: new Date().toISOString(),
+    service: 'LexGuard Backend',
   });
 });
 
@@ -44,9 +45,9 @@ app.use(handleError);
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 app.listen(config.port, () => {
-  console.log(`\n🛡️  LexGuard API running on http://localhost:${config.port}`);
-  console.log(`📋  Mock mode: ${config.mockMode ? '✅ ON (no GCP needed)' : '❌ OFF (using real GCP)'}`);
-  console.log(`🔗  Client URL: ${config.clientUrl}\n`);
+  console.log(`\nLexGuard API listening on port ${config.port}`);
+  console.log(`Mock mode: ${config.mockMode ? 'ON' : 'OFF'}`);
+  console.log(`CORS origins: ${config.corsOrigins.join(', ')}\n`);
 });
 
 export default app;

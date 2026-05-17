@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Shield, Upload, Zap, Lock, ChevronRight, Star, ArrowRight } from 'lucide-react';
+import { Shield, Upload, Zap, Lock, ChevronRight, ArrowRight } from 'lucide-react';
 
 const FEATURES = [
   {
@@ -30,19 +30,6 @@ const FEATURES = [
     color: '#8b5cf6',
     bg: 'rgba(139,92,246,0.1)',
   },
-];
-
-const TESTIMONIALS = [
-  { quote: 'Caught a 3-year global non-compete I almost signed. LexGuard saved me.', name: 'Sarah M.', role: 'Freelance Developer', stars: 5 },
-  { quote: 'I finally understand my lease. This should be mandatory before renting.', name: 'James T.', role: 'Tenant', stars: 5 },
-  { quote: 'Our vendor contracts have never been cleaner. The AI catches what we miss.', name: 'Priya K.', role: 'Operations Manager', stars: 5 },
-];
-
-const STATS = [
-  { value: '5', label: 'AI Agents' },
-  { value: '4', label: 'Risk Levels' },
-  { value: '30s', label: 'Demo Runtime' },
-  { value: '5', label: 'Persona Types' },
 ];
 
 export default function Landing() {
@@ -110,7 +97,7 @@ export default function Landing() {
             onClick={() => navigate('/history')}
             className="btn-secondary text-base px-8 py-4"
           >
-            View Sample Reports
+            View Reports
           </button>
         </div>
 
@@ -119,82 +106,8 @@ export default function Landing() {
           className="text-white/25 text-xs mt-6 animate-fade-in px-4"
           style={{ animationDelay: '500ms' }}
         >
-          No account required · Mock mode supported · Export-ready reports
+          No account required · Secure upload flow · Export-ready reports
         </p>
-
-        {/* Floating cards preview */}
-        <div
-          className="relative mt-12 sm:mt-20 w-full max-w-4xl mx-auto animate-slide-up"
-          style={{ animationDelay: '400ms' }}
-        >
-          <div
-            className="glass-card p-6 mx-auto max-w-2xl"
-            style={{ boxShadow: '0 20px 80px rgba(99,102,241,0.2)' }}
-          >
-            {/* Mock result preview */}
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs text-white/40 mb-1">Employment_Contract.pdf</p>
-                <h3 className="text-white font-bold text-lg">Analysis Complete</h3>
-              </div>
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
-                style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
-              >
-                ⚖️ Negotiate
-              </div>
-            </div>
-
-            <div className="h-2 rounded-full overflow-hidden mb-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
-              <div
-                className="h-full rounded-full"
-                style={{ width: '74%', background: 'linear-gradient(90deg, #10b981, #f59e0b)' }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-white/30 mb-5">
-              <span>Risk Score</span>
-              <span className="text-white/60 font-semibold">74/100</span>
-            </div>
-
-            <div className="space-y-2">
-              {['Overly broad IP assignment clause', 'Excessive non-compete scope (36 months)', 'Mandatory arbitration waiver'].map((c, i) => (
-                <div
-                  key={c}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
-                  style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)' }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: i === 0 ? '#ef4444' : '#f59e0b' }} />
-                  <span className="text-white/70 text-xs">{c}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats ────────────────────────────────────────────────────────────── */}
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="section-divider mb-16" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <p
-                  className="text-4xl font-black mb-1"
-                  style={{
-                    background: 'linear-gradient(135deg, #818cf8, #c084fc)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  {value}
-                </p>
-                <p className="text-white/45 text-sm">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────────── */}
@@ -273,32 +186,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Testimonials ─────────────────────────────────────────────────────── */}
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="section-label mb-3">Trusted by thousands</p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">What our users say</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map(({ quote, name, role, stars }) => (
-              <div key={name} className="glass-card p-6">
-                <div className="flex mb-4">
-                  {Array.from({ length: stars }).map((_, i) => (
-                    <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-white/70 text-sm leading-relaxed mb-4 italic">"{quote}"</p>
-                <div>
-                  <p className="text-white text-sm font-semibold">{name}</p>
-                  <p className="text-white/40 text-xs">{role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Final CTA ────────────────────────────────────────────────────────── */}
       <section className="py-24 px-4">
         <div className="max-w-3xl mx-auto text-center">
@@ -310,7 +197,7 @@ export default function Landing() {
               Don't sign another contract blind.
             </h2>
             <p className="text-white/50 text-lg mb-8">
-              Upload a sample TXT contract now and finish the demo with a printable report.
+              Upload a contract and finish with a printable report.
             </p>
             <button
               onClick={() => navigate('/analyze')}

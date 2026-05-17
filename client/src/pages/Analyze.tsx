@@ -185,7 +185,7 @@ export default function Analyze() {
             {[
               'Use TXT for the most reliable live demo analysis',
               'PDF and image uploads are accepted and saved, with extraction ready for Document AI or Vision API',
-              'Keep sample contracts under a few pages for faster hackathon demos',
+              'Keep contracts under a few pages for faster demos',
               'After results load, use Export to open the printable report',
             ].map((tip) => (
               <li key={tip} className="text-xs text-white/35 flex items-start gap-2">

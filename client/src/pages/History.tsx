@@ -51,7 +51,7 @@ export default function History() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 animate-fade-in">
           <div>
             <p className="section-label mb-2">Your analyses</p>
-          <h1 className="text-3xl sm:text-4xl font-black text-white">Sample Reports</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">Reports</h1>
           </div>
           <button onClick={() => navigate('/analyze')} className="btn-primary text-sm self-start sm:self-auto">
             <Upload size={15} />

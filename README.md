@@ -6,13 +6,13 @@ AI-powered contract risk review for hackathon demos. Upload a contract, choose a
 
 1. Open the landing page.
 2. Click **Analyze a Contract**.
-3. Upload `samples/freelance-risky-contract.txt`.
-4. Select **Freelancer**.
+3. Upload your own contract text file.
+4. Select the persona that matches your role.
 5. Run the analysis.
 6. Review the Results page.
 7. Click **Export Report** to open a printable HTML report that can be saved as PDF.
 
-Mock mode is supported for demos without Google Cloud credentials. Real mode uses Vertex AI Gemini, Firestore, and Google Cloud Storage.
+Mock mode is supported for local development without Google Cloud credentials, but it does not preload reports. Real mode uses Vertex AI Gemini, Firestore, and Google Cloud Storage.
 
 ## Project Structure
 
@@ -21,7 +21,6 @@ LexGuard-AI/
 ├── client/          # React + Vite + TypeScript + Tailwind
 ├── server/          # Express + TypeScript API
 ├── shared/          # Shared TypeScript types
-├── samples/         # Demo upload files
 ├── Dockerfile       # Cloud Run API container
 ├── firebase.json    # Firebase Hosting + Cloud Run rewrites
 └── package.json     # npm workspaces
@@ -32,6 +31,7 @@ LexGuard-AI/
 ```bash
 npm install
 cp server/.env.example server/.env
+cp client/.env.example client/.env
 npm run dev
 ```
 
@@ -42,6 +42,7 @@ Local URLs:
 - Health: `http://localhost:3001/health`
 
 `server/.env.example` defaults to `MOCK_MODE=true`, so the app runs without GCP setup.
+`client/.env.example` points the Vite app at the local backend with `VITE_API_URL=http://localhost:3001`.
 
 ## Real GCP Setup
 
@@ -73,7 +74,7 @@ GCS_BUCKET_NAME=your-bucket-name
 VERTEX_AI_LOCATION=us-central1
 VERTEX_AI_MODEL=gemini-1.5-pro
 FIRESTORE_REPORTS_COLLECTION=reports
-CLIENT_URL=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173,https://lex-guard-ai-eight.vercel.app
 ```
 
 Do not commit service account JSON files. They are ignored by `.gitignore`.
@@ -82,7 +83,7 @@ Do not commit service account JSON files. They are ignored by `.gitignore`.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` | API health and mock mode |
+| `GET` | `/health` | API health |
 | `POST` | `/api/analyze-text` | Analyze pasted text |
 | `POST` | `/api/upload-document` | Upload PDF, PNG, JPG, JPEG, or TXT |
 | `GET` | `/api/reports` | List report summaries |
@@ -90,6 +91,15 @@ Do not commit service account JSON files. They are ignored by `.gitignore`.
 | `GET` | `/api/reports/:id/export` | Printable HTML export |
 
 The client uses the enhanced report API for the demo path.
+
+Health check response:
+
+```json
+{
+  "status": "ok",
+  "service": "LexGuard Backend"
+}
+```
 
 ## Scoring
 
@@ -120,6 +130,70 @@ Accepted files:
 - TXT
 
 TXT is read directly. PDF and image extraction currently use modular placeholder extractors in `server/src/services/documentExtraction.ts`, ready for Document AI or Vision API integration.
+
+## Vercel Frontend + Cloud Run Backend
+
+Your Vercel frontend should call Cloud Run directly with a Vite environment variable:
+
+```env
+VITE_API_URL=https://YOUR-CLOUD-RUN-URL
+```
+
+Set this in Vercel:
+
+1. Open your Vercel project.
+2. Go to **Settings → Environment Variables**.
+3. Add `VITE_API_URL`.
+4. Use your Cloud Run service URL as the value.
+5. Redeploy the Vercel frontend.
+
+The frontend has a backend status badge. On app load it calls:
+
+```text
+https://YOUR-CLOUD-RUN-URL/health
+```
+
+If the badge is offline on Vercel, check:
+
+- `VITE_API_URL` is set for the Vercel environment you deployed.
+- Cloud Run allows unauthenticated requests.
+- Backend `CORS_ORIGINS` includes `https://lex-guard-ai-eight.vercel.app`.
+- The Cloud Run service responds to `/health`.
+
+### Deploy API to Cloud Run
+
+From the repo root:
+
+```bash
+PROJECT_ID=lexguard-496608
+REGION=us-central1
+SERVICE=lexguard-api
+BUCKET=your-gcs-bucket
+VERCEL_ORIGIN=https://lex-guard-ai-eight.vercel.app
+SERVICE_ACCOUNT=lexguard-api@$PROJECT_ID.iam.gserviceaccount.com
+
+gcloud config set project $PROJECT_ID
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+
+gcloud run deploy $SERVICE \
+  --source . \
+  --region $REGION \
+  --allow-unauthenticated \
+  --service-account $SERVICE_ACCOUNT \
+  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=$VERCEL_ORIGIN
+```
+
+Cloud Run injects `PORT`; the server falls back to `8080` when `PORT` is not set.
+The backend also includes `http://localhost:5173` and `https://lex-guard-ai-eight.vercel.app` in its default CORS allowlist.
+
+After deploy:
+
+```bash
+BACKEND_URL=$(gcloud run services describe $SERVICE --region $REGION --format="value(status.url)")
+curl $BACKEND_URL/health
+```
+
+Set `VITE_API_URL=$BACKEND_URL` in Vercel and redeploy the frontend.
 
 ## Firebase Hosting + Cloud Run Deployment
 
@@ -161,7 +235,7 @@ gcloud run deploy lexguard-api \
   --region $REGION \
   --allow-unauthenticated \
   --service-account $SERVICE_ACCOUNT \
-  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CLIENT_URL=https://$PROJECT_ID.web.app
+  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=https://$PROJECT_ID.web.app
 ```
 
 Cloud Run deploys source with `gcloud run deploy --source .`; because this repo has a Dockerfile, Cloud Run builds that container.
