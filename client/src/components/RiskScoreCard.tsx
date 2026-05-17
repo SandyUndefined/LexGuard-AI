@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RiskLevel } from '@lexguard/shared';
-import clsx from 'clsx';
 
 interface RiskScoreCardProps {
   score: number;

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, AlertCircle, Info } from 'lucide-react';
+import { Shield, AlertCircle, Info, RotateCcw } from 'lucide-react';
 import { useAnalysisStore } from '../store/analysisStore';
-import { analyzeDocument } from '../api/client';
+import { uploadDocumentForAnalysis } from '../api/client';
 import FileUpload from '../components/FileUpload';
 import PersonaSelector from '../components/PersonaSelector';
 import LoadingAnalysis from '../components/LoadingAnalysis';
@@ -27,12 +27,12 @@ export default function Analyze() {
     setProgress(0, 'Preparing upload…');
 
     try {
-      const response = await analyzeDocument(
+      const response = await uploadDocumentForAnalysis(
         selectedFile,
         selectedPersona,
         (pct) => {
           setUploadPct(pct);
-          setProgress(pct, 'Uploading document…');
+          setProgress(pct, pct >= 100 ? 'Analyzing clauses…' : 'Uploading document…');
         },
       );
 
@@ -40,8 +40,8 @@ export default function Analyze() {
         throw new Error('Analysis failed');
       }
 
-      setResult(response.result);
-      navigate(`/results/${response.result.id}`, { state: { result: response.result } });
+      setResult(response.report);
+      navigate(`/results/${response.report.id}`, { state: { report: response.report } });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       setError(msg);
@@ -66,7 +66,7 @@ export default function Analyze() {
   }
 
   return (
-    <div className="min-h-screen pt-28 pb-20 px-4">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-16 sm:pb-20 px-4">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
@@ -78,7 +78,7 @@ export default function Analyze() {
             <Shield size={12} />
             AI Contract Analysis
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-3">
+          <h1 className="text-3xl sm:text-5xl font-black text-white mb-3">
             Analyze Your Contract
           </h1>
           <p className="text-white/45 text-lg max-w-xl mx-auto">
@@ -87,7 +87,7 @@ export default function Analyze() {
         </div>
 
         {/* Main card */}
-        <div className="glass-card p-6 sm:p-8 space-y-8 animate-slide-up" style={{ animationDelay: '100ms' }}>
+        <div className="glass-card p-5 sm:p-8 space-y-7 sm:space-y-8 animate-slide-up" style={{ animationDelay: '100ms' }}>
 
           {/* Step 1: Upload */}
           <div>
@@ -131,14 +131,24 @@ export default function Analyze() {
           {/* Error */}
           {error && status === 'error' && (
             <div
-              className="flex items-start gap-3 px-4 py-3 rounded-xl animate-fade-in"
+              className="flex flex-col sm:flex-row sm:items-start gap-3 px-4 py-3 rounded-xl animate-fade-in"
               style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
             >
-              <AlertCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <div>
+              <div className="flex items-start gap-3 flex-1">
+                <AlertCircle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
                 <p className="text-red-400 text-sm font-medium">Analysis failed</p>
                 <p className="text-red-400/70 text-xs mt-0.5">{error}</p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setError('')}
+                className="btn-secondary text-xs px-3 py-2 self-start sm:self-center"
+              >
+                <RotateCcw size={12} />
+                Reset
+              </button>
             </div>
           )}
 
@@ -156,7 +166,7 @@ export default function Analyze() {
             {/* Info note */}
             <div className="flex items-center gap-1.5 text-white/30 text-xs">
               <Info size={11} />
-              Analysis takes 15–30 seconds · Your file is processed securely
+              TXT gives the best demo result today · PDF and image upload use placeholder extraction
             </div>
           </div>
         </div>
@@ -173,10 +183,10 @@ export default function Analyze() {
           <p className="text-xs font-semibold text-brand-400/70 uppercase tracking-wider mb-2">For best results</p>
           <ul className="space-y-1">
             {[
-              'PDF files give the most accurate text extraction',
-              'Ensure the document is not password-protected',
-              'For images, make sure text is clearly legible',
-              'Larger documents (20+ pages) may take longer',
+              'Use TXT for the most reliable live demo analysis',
+              'PDF and image uploads are accepted and saved, with extraction ready for Document AI or Vision API',
+              'Keep sample contracts under a few pages for faster hackathon demos',
+              'After results load, use Export to open the printable report',
             ].map((tip) => (
               <li key={tip} className="text-xs text-white/35 flex items-start gap-2">
                 <span className="text-brand-400/50 mt-0.5">·</span>

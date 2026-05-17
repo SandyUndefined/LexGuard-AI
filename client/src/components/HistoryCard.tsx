@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import type { HistoryItem } from '@lexguard/shared';
+import type { ReportsListResponse } from '@lexguard/shared';
 import { PERSONA_META } from '@lexguard/shared';
 import { FileText, ChevronRight, Clock } from 'lucide-react';
 import RecommendationBadge from './RecommendationBadge';
 import clsx from 'clsx';
 
+type ReportSummary = ReportsListResponse['reports'][number];
+
 interface HistoryCardProps {
-  item: HistoryItem;
+  item: ReportSummary;
   index: number;
 }
 
@@ -28,7 +30,7 @@ const SCORE_COLOR = (score: number) =>
 export default function HistoryCard({ item, index }: HistoryCardProps) {
   const navigate = useNavigate();
   const persona = PERSONA_META.find((p) => p.id === item.persona);
-  const color = SCORE_COLOR(item.riskScore);
+  const color = SCORE_COLOR(item.overallRiskScore);
 
   return (
     <button
@@ -52,12 +54,12 @@ export default function HistoryCard({ item, index }: HistoryCardProps) {
             strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray={2 * Math.PI * 22}
-            strokeDashoffset={2 * Math.PI * 22 * (1 - item.riskScore / 100)}
+            strokeDashoffset={2 * Math.PI * 22 * (1 - item.overallRiskScore / 100)}
             transform="rotate(-90 28 28)"
             style={{ filter: `drop-shadow(0 0 4px ${color})` }}
           />
           <text x="28" y="33" textAnchor="middle" fill="white" fontSize="13" fontWeight="700" fontFamily="Inter">
-            {item.riskScore}
+            {item.overallRiskScore}
           </text>
         </svg>
       </div>
@@ -83,7 +85,7 @@ export default function HistoryCard({ item, index }: HistoryCardProps) {
           </span>
 
           {/* Recommendation badge */}
-          <RecommendationBadge recommendation={item.recommendation} />
+          <RecommendationBadge recommendation={item.riskLevel} />
         </div>
       </div>
 

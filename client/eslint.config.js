@@ -7,14 +7,15 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist']),
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  reactRefresh.configs.vite,
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-    ],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: reactHooks.configs.recommended.rules,
     languageOptions: {
       globals: globals.browser,
     },

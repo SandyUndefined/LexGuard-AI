@@ -71,6 +71,7 @@ export default {
         'float':         'float 6s ease-in-out infinite',
         'progress':      'progress 2s ease-in-out infinite',
         'shimmer':       'shimmer 2s linear infinite',
+        'scan-line':     'scanLine 1.8s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -100,6 +101,12 @@ export default {
         shimmer: {
           '0%':   { backgroundPosition: '-200% center' },
           '100%': { backgroundPosition: '200% center' },
+        },
+        scanLine: {
+          '0%':   { transform: 'translateY(-42px)', opacity: '0' },
+          '20%':  { opacity: '1' },
+          '80%':  { opacity: '1' },
+          '100%': { transform: 'translateY(42px)', opacity: '0' },
         },
       },
       backdropBlur: {

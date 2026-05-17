@@ -1,12 +1,12 @@
 import { create } from 'zustand';
-import type { AnalysisResult, AnalysisStatus, Persona } from '@lexguard/shared';
+import type { AnalysisStatus, EnhancedReport, Persona } from '@lexguard/shared';
 
 interface AnalysisStore {
   // Current analysis state
   status: AnalysisStatus;
   progress: number;
   progressLabel: string;
-  result: AnalysisResult | null;
+  result: EnhancedReport | null;
   error: string | null;
 
   // Form state
@@ -18,7 +18,7 @@ interface AnalysisStore {
   setPersona: (persona: Persona) => void;
   setStatus: (status: AnalysisStatus) => void;
   setProgress: (progress: number, label: string) => void;
-  setResult: (result: AnalysisResult) => void;
+  setResult: (result: EnhancedReport) => void;
   setError: (error: string) => void;
   reset: () => void;
 }

@@ -1,140 +1,197 @@
-# 🛡️ LexGuard AI
+# LexGuard AI
 
-**AI-powered legal document analysis.** Upload any contract and instantly identify risky clauses, understand risks in plain English, and get a recommendation: **Safe**, **Negotiate**, or **Avoid**.
+AI-powered contract risk review for hackathon demos. Upload a contract, choose a persona, get a scored report, inspect risky clauses, and export a printable report.
 
-![LexGuard AI](https://img.shields.io/badge/Powered%20by-Gemini%20AI-6366f1?style=flat-square)
-![Stack](https://img.shields.io/badge/Stack-React%20%7C%20Express%20%7C%20Firestore-8b5cf6?style=flat-square)
+## Demo Flow
 
----
+1. Open the landing page.
+2. Click **Analyze a Contract**.
+3. Upload `samples/freelance-risky-contract.txt`.
+4. Select **Freelancer**.
+5. Run the analysis.
+6. Review the Results page.
+7. Click **Export Report** to open a printable HTML report that can be saved as PDF.
 
-## 📁 Project Structure
+Mock mode is supported for demos without Google Cloud credentials. Real mode uses Vertex AI Gemini, Firestore, and Google Cloud Storage.
 
-```
+## Project Structure
+
+```text
 LexGuard-AI/
 ├── client/          # React + Vite + TypeScript + Tailwind
-├── server/          # Node.js + Express + TypeScript
+├── server/          # Express + TypeScript API
 ├── shared/          # Shared TypeScript types
-└── package.json     # Root npm workspace
+├── samples/         # Demo upload files
+├── Dockerfile       # Cloud Run API container
+├── firebase.json    # Firebase Hosting + Cloud Run rewrites
+└── package.json     # npm workspaces
 ```
 
----
-
-## 🚀 Quick Start (Mock Mode — No GCP Required)
-
-Mock mode is **on by default**. You can run the full app without any Google Cloud credentials.
-
-### 1. Install dependencies
+## Quick Start
 
 ```bash
 npm install
-```
-
-### 2. Set up server environment
-
-```bash
 cp server/.env.example server/.env
-# MOCK_MODE=true is set by default — no changes needed
-```
-
-### 3. Start both servers
-
-```bash
 npm run dev
 ```
 
-- **Frontend:** http://localhost:5173  
-- **Backend API:** http://localhost:3001  
-- **Health check:** http://localhost:3001/health
+Local URLs:
 
----
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3001`
+- Health: `http://localhost:3001/health`
 
-## 🌐 Production Setup (Real GCP)
+`server/.env.example` defaults to `MOCK_MODE=true`, so the app runs without GCP setup.
 
-### Prerequisites
+## Real GCP Setup
 
-1. [Create a GCP project](https://console.cloud.google.com/projectcreate)
-2. Enable the following APIs:
-   - Vertex AI API
-   - Cloud Firestore API
-   - Cloud Storage API
-3. Create a Firestore database (Native mode)
-4. Create a GCS bucket for document storage
-5. Create a service account with roles:
-   - `Vertex AI User`
-   - `Cloud Datastore User`
-   - `Storage Object Admin`
-6. Download the service account key JSON
+Enable these APIs in your Google Cloud project:
 
-### Configure
+- Vertex AI API
+- Cloud Firestore API
+- Cloud Storage API
+- Cloud Run Admin API
+- Cloud Build API
+- Artifact Registry API
 
-```bash
-cp server/.env.example server/.env
-```
+Create:
 
-Edit `server/.env`:
+- Firestore database in Native mode
+- GCS bucket for uploaded documents
+- Cloud Run service account with:
+  - `Vertex AI User`
+  - `Cloud Datastore User`
+  - `Storage Object Admin`
+
+For local real-mode development, copy `server/.env.example` to `server/.env` and set:
+
 ```env
 MOCK_MODE=false
 GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json
 GCS_BUCKET_NAME=your-bucket-name
 VERTEX_AI_LOCATION=us-central1
+VERTEX_AI_MODEL=gemini-1.5-pro
+FIRESTORE_REPORTS_COLLECTION=reports
+CLIENT_URL=http://localhost:5173
 ```
 
-Place your `service-account-key.json` inside the `server/` directory.
+Do not commit service account JSON files. They are ignored by `.gitignore`.
 
----
+## API
 
-## 🎯 Features
-
-| Feature | Description |
-|---|---|
-| 📄 File Upload | PDF, PNG, JPG, WEBP, TXT (up to 20MB) |
-| 🎭 Persona Selection | Employee, Freelancer, Customer, Tenant, Vendor |
-| 🤖 AI Analysis | Powered by Vertex AI Gemini 1.5 Pro |
-| 📊 Risk Scoring | 0–100 score with animated gauge |
-| ⚠️ Clause Detection | Color-coded by severity (low/medium/high) |
-| 💬 Plain English | No legal jargon — clear risk explanations |
-| ✅ Recommendations | Safe / Negotiate / Avoid |
-| 📚 History | Browse and search all past analyses |
-
----
-
-## 📦 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, Vite, TypeScript, Tailwind CSS v3 |
-| State | Zustand |
-| Routing | React Router v6 |
-| Animations | Framer Motion, CSS animations |
-| Backend | Node.js, Express, TypeScript |
-| AI | Vertex AI Gemini 1.5 Pro |
-| Database | Cloud Firestore |
-| Storage | Google Cloud Storage |
-| File Parsing | Multer, pdf-parse |
-
----
-
-## 🔗 API Reference
-
-| Endpoint | Method | Description |
+| Method | Endpoint | Description |
 |---|---|---|
-| `/health` | GET | Server health + mock mode status |
-| `/api/analyze` | POST | Upload and analyze a contract |
-| `/api/history` | GET | List all past analyses |
-| `/api/history/:id` | GET | Get a specific analysis result |
+| `GET` | `/health` | API health and mock mode |
+| `POST` | `/api/analyze-text` | Analyze pasted text |
+| `POST` | `/api/upload-document` | Upload PDF, PNG, JPG, JPEG, or TXT |
+| `GET` | `/api/reports` | List report summaries |
+| `GET` | `/api/reports/:id` | Fetch one report |
+| `GET` | `/api/reports/:id/export` | Printable HTML export |
 
-### POST /api/analyze
+The client uses the enhanced report API for the demo path.
 
-**Content-Type:** `multipart/form-data`
+## Scoring
 
-| Field | Type | Description |
-|---|---|---|
-| `file` | File | Contract document (PDF/image/text) |
-| `persona` | string | `employee` \| `freelancer` \| `customer` \| `tenant` \| `vendor` |
+Severity weights:
 
----
+| Severity | Weight |
+|---|---:|
+| Low | 10 |
+| Medium | 35 |
+| High | 70 |
+| Critical | 95 |
 
-## ⚖️ Disclaimer
+`overallRiskScore` is the rounded average of clause severity weights.
 
-LexGuard AI provides general information for educational purposes only. It is not a substitute for professional legal advice. Always consult a qualified attorney for important legal decisions.
+Risk bands:
+
+- `0-30`: Safe
+- `31-70`: Negotiate
+- `71-100`: Avoid
+
+## Document Upload
+
+Accepted files:
+
+- PDF
+- PNG
+- JPG / JPEG
+- TXT
+
+TXT is read directly. PDF and image extraction currently use modular placeholder extractors in `server/src/services/documentExtraction.ts`, ready for Document AI or Vision API integration.
+
+## Firebase Hosting + Cloud Run Deployment
+
+The repo includes:
+
+- `Dockerfile` for the Express API on Cloud Run
+- `firebase.json` for Firebase Hosting static assets and `/api/**` rewrites to Cloud Run
+
+The included `firebase.json` assumes:
+
+- Cloud Run service: `lexguard-api`
+- Region: `us-central1`
+- Hosting public directory: `client/dist`
+
+Edit `firebase.json` if your Cloud Run service or region differs.
+
+### 1. Build and Test Locally
+
+```bash
+npm run type-check
+npm run build
+```
+
+### 2. Deploy API to Cloud Run
+
+From the repo root:
+
+```bash
+PROJECT_ID=your-project-id
+REGION=us-central1
+BUCKET=your-gcs-bucket
+SERVICE_ACCOUNT=lexguard-api@$PROJECT_ID.iam.gserviceaccount.com
+
+gcloud config set project $PROJECT_ID
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com
+
+gcloud run deploy lexguard-api \
+  --source . \
+  --region $REGION \
+  --allow-unauthenticated \
+  --service-account $SERVICE_ACCOUNT \
+  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CLIENT_URL=https://$PROJECT_ID.web.app
+```
+
+Cloud Run deploys source with `gcloud run deploy --source .`; because this repo has a Dockerfile, Cloud Run builds that container.
+
+### 3. Deploy Frontend to Firebase Hosting
+
+```bash
+npm run build --workspace=client
+npm install -g firebase-tools
+firebase login
+firebase use --add
+firebase deploy --only hosting
+```
+
+Firebase Hosting serves `client/dist` and rewrites `/api/**` to the Cloud Run service configured in `firebase.json`.
+
+## Useful Scripts
+
+```bash
+npm run dev          # client + server
+npm run type-check   # server + client type checks
+npm run build        # shared + server + client builds
+```
+
+## References
+
+- Firebase Hosting quickstart: https://firebase.google.com/docs/hosting/quickstart
+- Firebase Hosting + Cloud Run rewrites: https://firebase.google.com/docs/hosting/cloud-run
+- Cloud Run source deploy: https://cloud.google.com/run/docs/deploying-source-code
+
+## Disclaimer
+
+LexGuard AI provides general information for educational purposes only. It is not legal advice. Consult a qualified attorney for important contracts.

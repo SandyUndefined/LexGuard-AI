@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Clock, Search, Filter } from 'lucide-react';
-import { fetchHistory } from '../api/client';
-import type { HistoryItem, RiskLevel } from '@lexguard/shared';
+import { Upload, Clock, Search, Filter, AlertTriangle } from 'lucide-react';
+import { fetchReports } from '../api/client';
+import type { ReportsListResponse, RiskLevel } from '@lexguard/shared';
 import HistoryCard from '../components/HistoryCard';
 
 type FilterType = 'all' | RiskLevel;
+type ReportSummary = ReportsListResponse['reports'][number];
 
 const FILTER_OPTIONS: { value: FilterType; label: string; color?: string }[] = [
   { value: 'all',       label: 'All' },
@@ -16,15 +17,15 @@ const FILTER_OPTIONS: { value: FilterType; label: string; color?: string }[] = [
 
 export default function History() {
   const navigate = useNavigate();
-  const [items, setItems] = useState<HistoryItem[]>([]);
+  const [items, setItems] = useState<ReportSummary[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
   useEffect(() => {
-    fetchHistory()
+    fetchReports()
       .then((r) => {
-        setItems(r.items);
+        setItems(r.reports);
         setLoadState('loaded');
       })
       .catch(() => setLoadState('error'));
@@ -32,15 +33,15 @@ export default function History() {
 
   const filtered = items.filter((item) => {
     const matchesSearch = item.documentName.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === 'all' || item.recommendation === filter;
+    const matchesFilter = filter === 'all' || item.riskLevel === filter;
     return matchesSearch && matchesFilter;
   });
 
   // Stats
-  const safeCount      = items.filter((i) => i.recommendation === 'safe').length;
-  const negotiateCount = items.filter((i) => i.recommendation === 'negotiate').length;
-  const avoidCount     = items.filter((i) => i.recommendation === 'avoid').length;
-  const avgScore       = items.length > 0 ? Math.round(items.reduce((s, i) => s + i.riskScore, 0) / items.length) : 0;
+  const safeCount      = items.filter((i) => i.riskLevel === 'safe').length;
+  const negotiateCount = items.filter((i) => i.riskLevel === 'negotiate').length;
+  const avoidCount     = items.filter((i) => i.riskLevel === 'avoid').length;
+  const avgScore       = items.length > 0 ? Math.round(items.reduce((s, i) => s + i.overallRiskScore, 0) / items.length) : 0;
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4">
@@ -50,7 +51,7 @@ export default function History() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 animate-fade-in">
           <div>
             <p className="section-label mb-2">Your analyses</p>
-            <h1 className="text-4xl font-black text-white">History</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">Sample Reports</h1>
           </div>
           <button onClick={() => navigate('/analyze')} className="btn-primary text-sm self-start sm:self-auto">
             <Upload size={15} />
@@ -153,7 +154,9 @@ export default function History() {
 
         {loadState === 'error' && (
           <div className="glass-card p-10 text-center">
-            <p className="text-white/50 text-sm">Failed to load history. Is the server running?</p>
+            <AlertTriangle size={34} className="text-red-400 mx-auto mb-3" />
+            <h2 className="text-white font-bold text-xl mb-2">Could not load reports</h2>
+            <p className="text-white/50 text-sm">Check that the API server is running, then retry.</p>
             <button onClick={() => window.location.reload()} className="btn-secondary mt-4 text-sm">
               Retry
             </button>

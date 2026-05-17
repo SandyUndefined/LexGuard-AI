@@ -18,8 +18,8 @@ const FEATURES = [
   },
   {
     icon: Upload,
-    title: 'Any Format Accepted',
-    description: 'Upload PDFs, images, or plain text. Our AI handles all document types.',
+    title: 'Demo-Ready Uploads',
+    description: 'Upload TXT for live analysis, or PDF/PNG/JPG to exercise the document pipeline.',
     color: '#10b981',
     bg: 'rgba(16,185,129,0.1)',
   },
@@ -39,9 +39,9 @@ const TESTIMONIALS = [
 ];
 
 const STATS = [
-  { value: '50k+', label: 'Contracts Analyzed' },
-  { value: '94%', label: 'Risk Clauses Found' },
-  { value: '30s', label: 'Avg. Analysis Time' },
+  { value: '5', label: 'AI Agents' },
+  { value: '4', label: 'Risk Levels' },
+  { value: '30s', label: 'Demo Runtime' },
   { value: '5', label: 'Persona Types' },
 ];
 
@@ -51,7 +51,7 @@ export default function Landing() {
   return (
     <div className="relative">
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-20 pb-16">
+      <section className="relative min-h-[92vh] flex flex-col items-center justify-center text-center px-4 pt-24 pb-14">
         {/* Grid pattern */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -77,7 +77,7 @@ export default function Landing() {
 
         {/* Heading */}
         <h1
-          className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-tight mb-6 animate-slide-up"
+          className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-tight mb-6 animate-slide-up"
           style={{ animationDelay: '100ms' }}
         >
           Understand Any
@@ -110,21 +110,21 @@ export default function Landing() {
             onClick={() => navigate('/history')}
             className="btn-secondary text-base px-8 py-4"
           >
-            View Sample Results
+            View Sample Reports
           </button>
         </div>
 
         {/* Trust line */}
         <p
-          className="text-white/25 text-xs mt-6 animate-fade-in"
+          className="text-white/25 text-xs mt-6 animate-fade-in px-4"
           style={{ animationDelay: '500ms' }}
         >
-          No account required · Documents processed securely · Results in ~30 seconds
+          No account required · Mock mode supported · Export-ready reports
         </p>
 
         {/* Floating cards preview */}
         <div
-          className="relative mt-20 w-full max-w-4xl mx-auto animate-slide-up"
+          className="relative mt-12 sm:mt-20 w-full max-w-4xl mx-auto animate-slide-up"
           style={{ animationDelay: '400ms' }}
         >
           <div
@@ -310,7 +310,7 @@ export default function Landing() {
               Don't sign another contract blind.
             </h2>
             <p className="text-white/50 text-lg mb-8">
-              Upload your contract now and know exactly what you're agreeing to.
+              Upload a sample TXT contract now and finish the demo with a printable report.
             </p>
             <button
               onClick={() => navigate('/analyze')}
@@ -326,7 +326,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-8 px-4 text-center border-t border-white/5">
         <p className="text-white/25 text-sm">
-          © 2025 LexGuard AI · Built with Gemini · Not a substitute for legal advice
+          © 2026 LexGuard AI · Built with Gemini · Not a substitute for legal advice
         </p>
       </footer>
     </div>

@@ -15,7 +15,6 @@ const ACCEPTED_TYPES: Record<string, string[]> = {
   'application/pdf': ['.pdf'],
   'image/png': ['.png'],
   'image/jpeg': ['.jpg', '.jpeg'],
-  'image/webp': ['.webp'],
   'text/plain': ['.txt'],
 };
 
@@ -42,7 +41,7 @@ export default function FileUpload({ onFileSelect, selectedFile, onClear }: File
         if (err.code === 'file-too-large') {
           setRejected('File is too large. Maximum size is 20MB.');
         } else if (err.code === 'file-invalid-type') {
-          setRejected('Invalid file type. Please upload a PDF, image, or text file.');
+          setRejected('Invalid file type. Please upload a PDF, PNG, JPG, JPEG, or TXT file.');
         } else {
           setRejected(err.message);
         }
@@ -93,7 +92,7 @@ export default function FileUpload({ onFileSelect, selectedFile, onClear }: File
       <div
         {...getRootProps()}
         className={clsx(
-          'relative rounded-2xl border-2 border-dashed p-10 text-center cursor-pointer',
+          'relative rounded-xl border-2 border-dashed p-6 sm:p-10 text-center cursor-pointer',
           'transition-all duration-300 group',
           isDragActive && !isDragReject && 'border-brand-400 bg-brand-500/5',
           isDragReject && 'border-red-400 bg-red-500/5',
@@ -128,7 +127,7 @@ export default function FileUpload({ onFileSelect, selectedFile, onClear }: File
         <p className="text-white/40 text-sm mt-1">or click to browse</p>
 
         <div className="flex items-center justify-center gap-3 mt-5">
-          {['PDF', 'PNG / JPG', 'TXT'].map((type) => (
+          {['PDF', 'PNG', 'JPG', 'TXT'].map((type) => (
             <span
               key={type}
               className="px-2.5 py-1 rounded-md text-xs font-medium text-white/50 border border-white/10"

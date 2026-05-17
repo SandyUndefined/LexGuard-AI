@@ -236,6 +236,122 @@ export const MOCK_ENHANCED_REPORTS: EnhancedReport[] = [
     },
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
+  {
+    id: 'mock-report-002',
+    userId: 'mock-user',
+    documentName: 'Freelance_Service_Agreement.txt',
+    persona: 'freelancer',
+    overallRiskScore: 53,
+    riskLevel: 'negotiate',
+    recommendation:
+      'This contract has 1 clause(s) that need attention (score: 53/100). Request modifications on the flagged items before signing.',
+    summary:
+      'This service agreement is workable but creates payment and ownership pressure for the freelancer. The payment timeline and pre-existing IP language should be clarified before work begins.',
+    clauses: [
+      {
+        id: 'enhanced-clause-f-001',
+        title: 'Slow Payment Terms',
+        originalText:
+          'Client shall pay all undisputed invoices within sixty (60) days after receipt, provided Client accepts the deliverables in its sole discretion.',
+        category: 'Payment',
+        severity: 'medium',
+        riskExplanation:
+          'Payment can be delayed for two months and tied to a subjective acceptance standard controlled by the client.',
+        realWorldImpact:
+          'The freelancer may finish the work but wait months for cash flow, with little leverage if the client keeps requesting changes.',
+        saferRewrite:
+          'Client shall pay undisputed invoices within fifteen (15) days. Deliverables are deemed accepted unless Client provides specific written objections within five (5) business days.',
+        agentFlags: {
+          legalRisk: true,
+          financialRisk: true,
+          adversarialTrap: true,
+        },
+      },
+      {
+        id: 'enhanced-clause-f-002',
+        title: 'Pre-Existing Tools Assignment',
+        originalText:
+          'Contractor assigns all intellectual property used in or related to the project, including templates, libraries, methods, and tools developed before the effective date.',
+        category: 'Intellectual Property',
+        severity: 'high',
+        riskExplanation:
+          'The clause transfers ownership of reusable materials the freelancer already had before the project.',
+        realWorldImpact:
+          'A freelancer could lose the right to reuse their own templates or code libraries with future clients.',
+        saferRewrite:
+          'Contractor assigns only project-specific deliverables created for Client. Contractor retains all pre-existing tools and grants Client a non-exclusive license to use them as embedded in the deliverables.',
+        agentFlags: {
+          legalRisk: true,
+          financialRisk: true,
+          adversarialTrap: false,
+        },
+      },
+    ],
+    agentMetadata: {
+      clausesExtracted: 2,
+      processingTimeMs: 980,
+      agentsRun: ENHANCED_ANALYSIS_AGENT_NAMES,
+    },
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'mock-report-003',
+    userId: 'mock-user',
+    documentName: 'Apartment_Lease_Sample.txt',
+    persona: 'tenant',
+    overallRiskScore: 23,
+    riskLevel: 'safe',
+    recommendation:
+      'This contract appears fair and reasonable (score: 23/100). You can sign with confidence, but always read it fully yourself.',
+    summary:
+      'This lease is mostly balanced, with clear notice requirements and reasonable maintenance obligations. The tenant should still confirm the repair threshold and move-out inspection process.',
+    clauses: [
+      {
+        id: 'enhanced-clause-t-001',
+        title: 'Minor Repair Threshold',
+        originalText:
+          'Tenant is responsible for minor repairs under seventy-five dollars ($75) caused by ordinary use of the premises.',
+        category: 'Maintenance',
+        severity: 'low',
+        riskExplanation:
+          'A small repair threshold is common, but it should not include repairs caused by normal building wear or landlord-controlled systems.',
+        realWorldImpact:
+          'The tenant might be asked to pay for repeated small fixes that should be handled by the landlord.',
+        saferRewrite:
+          'Tenant is responsible only for minor repairs under $75 caused by Tenant misuse. Landlord remains responsible for ordinary wear, building systems, and code compliance.',
+        agentFlags: {
+          legalRisk: false,
+          financialRisk: true,
+          adversarialTrap: false,
+        },
+      },
+      {
+        id: 'enhanced-clause-t-002',
+        title: 'Move-Out Inspection Timing',
+        originalText:
+          'Landlord will inspect the premises after Tenant vacates and may deduct reasonable cleaning or repair costs from the security deposit.',
+        category: 'Security Deposit',
+        severity: 'medium',
+        riskExplanation:
+          'The inspection happens after move-out, which can make it harder for the tenant to fix issues or dispute deductions.',
+        realWorldImpact:
+          'The tenant may lose part of the deposit for issues they could have addressed if told earlier.',
+        saferRewrite:
+          'Tenant may request a pre-move-out inspection at least seven (7) days before surrender. Landlord will provide an itemized list of potential deductions and a reasonable chance to cure.',
+        agentFlags: {
+          legalRisk: true,
+          financialRisk: true,
+          adversarialTrap: false,
+        },
+      },
+    ],
+    agentMetadata: {
+      clausesExtracted: 2,
+      processingTimeMs: 760,
+      agentsRun: ENHANCED_ANALYSIS_AGENT_NAMES,
+    },
+    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 ];
 
 export function generateMockEnhancedReport(
@@ -245,6 +361,7 @@ export function generateMockEnhancedReport(
   userId?: string,
 ): EnhancedReport {
   const template =
+    MOCK_ENHANCED_REPORTS.find((report) => report.persona === persona) ??
     MOCK_ENHANCED_REPORTS.find((report) => report.id === 'mock-report-001') ??
     MOCK_ENHANCED_REPORTS[0];
   const clauses = template.clauses.map((clause) => ({

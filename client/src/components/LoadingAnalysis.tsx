@@ -47,9 +47,9 @@ export default function LoadingAnalysis({ fileName, uploadProgress }: LoadingAna
     : Math.min(100, ((currentStep + 1) / STEPS.length) * 100);
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
+    <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-5 sm:px-8 text-center">
       {/* Animated shield */}
-      <div className="relative mb-10">
+      <div className="relative mb-8 sm:mb-10">
         {/* Outer ring */}
         <div
           className="absolute inset-0 rounded-full animate-ping opacity-20"
@@ -65,26 +65,27 @@ export default function LoadingAnalysis({ fileName, uploadProgress }: LoadingAna
         />
         {/* Icon container */}
         <div
-          className="relative w-20 h-20 rounded-2xl flex items-center justify-center animate-glow-pulse"
+          className="relative w-20 h-20 rounded-2xl flex items-center justify-center animate-glow-pulse overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
             boxShadow: '0 0 40px rgba(99,102,241,0.5)',
           }}
         >
+          <span className="absolute inset-x-0 h-px bg-white/70 animate-scan-line" />
           <Shield size={36} className="text-white" />
         </div>
       </div>
 
       {/* Title */}
-      <h2 className="text-2xl font-bold text-white mb-2">
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
         Analyzing your contract{dots}
       </h2>
-      <p className="text-white/40 text-sm mb-1 max-w-xs truncate">
+      <p className="text-white/40 text-sm mb-1 max-w-full sm:max-w-xs truncate">
         {fileName}
       </p>
 
       {/* Progress bar */}
-      <div className="w-full max-w-sm mt-8 mb-6">
+      <div className="w-full max-w-sm mt-7 sm:mt-8 mb-6">
         <div className="flex justify-between text-xs text-white/40 mb-2">
           <span>{STEPS[currentStep]?.label}</span>
           <span>{Math.round(stepProgress)}%</span>
