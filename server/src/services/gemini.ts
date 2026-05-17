@@ -2,6 +2,7 @@ import { VertexAI } from '@google-cloud/vertexai';
 import { config } from '../config';
 import { AnalysisResult, Persona, RiskyClause, RiskLevel } from '../../../shared/src/types';
 import { v4 as uuidv4 } from 'uuid';
+import { toVertexApiError } from './vertexErrors';
 
 let vertexAI: VertexAI | null = null;
 
@@ -105,9 +106,14 @@ export async function analyzeDocumentWithGemini(
 
   const prompt = buildAnalysisPrompt(documentText, persona);
 
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-  });
+  const result = await model
+    .generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    })
+    .catch((error: unknown) => {
+      console.error('Vertex AI legacy analysis failed:', error);
+      throw toVertexApiError(error);
+    });
 
   const responseText =
     result.response.candidates?.[0]?.content?.parts?.[0]?.text || '';

@@ -27,7 +27,7 @@ export const config = {
   },
   vertexAI: {
     location: process.env.VERTEX_AI_LOCATION || 'us-central1',
-    model: process.env.VERTEX_AI_MODEL || 'gemini-1.5-pro',
+    model: process.env.VERTEX_AI_MODEL || 'gemini-2.5-flash',
   },
   firestore: {
     collection: process.env.FIRESTORE_COLLECTION || 'analyses',

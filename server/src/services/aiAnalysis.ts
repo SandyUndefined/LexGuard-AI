@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config';
 import { ApiError } from '../errors';
 import { normaliseSeverity, scoreClauses } from './riskScoring';
+import { toVertexApiError } from './vertexErrors';
 import type { ClauseSeverity, EnhancedClause, EnhancedReport, Persona } from '../../../shared/src/types';
 
 interface AnalysisAgent {
@@ -223,9 +224,14 @@ export async function analyzeTextWithVertexGemini({
     },
   });
 
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: buildAgentPrompt(documentText, persona) }] }],
-  });
+  const result = await model
+    .generateContent({
+      contents: [{ role: 'user', parts: [{ text: buildAgentPrompt(documentText, persona) }] }],
+    })
+    .catch((error: unknown) => {
+      console.error('Vertex AI enhanced analysis failed:', error);
+      throw toVertexApiError(error);
+    });
 
   const responseText = result.response.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
   if (!responseText.trim()) {

@@ -72,7 +72,7 @@ GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_APPLICATION_CREDENTIALS=./service-account-key.json
 GCS_BUCKET_NAME=your-bucket-name
 VERTEX_AI_LOCATION=us-central1
-VERTEX_AI_MODEL=gemini-1.5-pro
+VERTEX_AI_MODEL=gemini-2.5-flash
 FIRESTORE_REPORTS_COLLECTION=reports
 CORS_ORIGINS=http://localhost:5173,https://lex-guard-ai-eight.vercel.app
 ```
@@ -188,7 +188,7 @@ gcloud run deploy $SERVICE \
   --region $REGION \
   --allow-unauthenticated \
   --service-account $SERVICE_ACCOUNT \
-  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=$VERCEL_ORIGIN
+  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,VERTEX_AI_MODEL=gemini-2.5-flash,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=$VERCEL_ORIGIN
 ```
 
 Cloud Run injects `PORT`; the server falls back to `8080` when `PORT` is not set.
@@ -243,7 +243,7 @@ gcloud run deploy lexguard-api \
   --region $REGION \
   --allow-unauthenticated \
   --service-account $SERVICE_ACCOUNT \
-  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=https://$PROJECT_ID.web.app
+  --set-env-vars MOCK_MODE=false,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,GCS_BUCKET_NAME=$BUCKET,VERTEX_AI_LOCATION=$REGION,VERTEX_AI_MODEL=gemini-2.5-flash,FIRESTORE_REPORTS_COLLECTION=reports,CORS_ORIGINS=https://$PROJECT_ID.web.app
 ```
 
 Cloud Run deploys source with `gcloud run deploy --source .`; because this repo has a Dockerfile, Cloud Run builds that container.
