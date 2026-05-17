@@ -16,7 +16,7 @@ function parseCsv(value: string | undefined): string[] {
 }
 
 export const config = {
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: parseInt(process.env.PORT || '8080', 10),
   mockMode: process.env.MOCK_MODE === 'true',
   gcp: {
     project: process.env.GOOGLE_CLOUD_PROJECT || '',
